@@ -91,26 +91,26 @@ Configured in **Render Dashboard**:
 
 ## 🧑‍💻 Run Locally (Development)
 
-### 1️⃣ Clone Repository
-```bash
+1️⃣ Clone Repository
+`
 git clone https://github.com/Eswar0474/Real_Estate_Website.git
-cd Real_Estate_Website
+cd Real_Estate_Website`
 
 2️⃣ Create Virtual Environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+`python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate`
 
 3️⃣ Install Dependencies
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 4️⃣ Apply Migrations
-python manage.py migrate
+`python manage.py migrate`
 
 5️⃣ Create Admin User
-python manage.py createsuperuser
+`python manage.py createsuperuser`
 
 6️⃣ Run Server
-python manage.py runserver
+`python manage.py runserver`
 
 
 Open in browser:
