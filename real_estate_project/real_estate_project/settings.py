@@ -1,13 +1,9 @@
-"""
-Django settings for real_estate_project
-"""
-
 from pathlib import Path
 import os
 import dj_database_url
 
 # --------------------------------------------------
-# BASE DIR
+# BASE DIRECTORY
 # --------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,19 +13,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
-    "django-insecure-dev-key-change-this"
+    "django-insecure-dev-key"
 )
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-
-# --------------------------------------------------
-# ALLOWED HOSTS
-# --------------------------------------------------
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    ".onrender.com",   # ✅ required for Render
+    ".onrender.com",
 ]
 
 
@@ -55,7 +47,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # ✅ added
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -66,7 +58,7 @@ MIDDLEWARE = [
 
 
 # --------------------------------------------------
-# URL & WSGI
+# URLS / WSGI
 # --------------------------------------------------
 ROOT_URLCONF = "real_estate_project.urls"
 
@@ -79,7 +71,7 @@ WSGI_APPLICATION = "real_estate_project.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # optional
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -93,9 +85,6 @@ TEMPLATES = [
 ]
 
 
-# --------------------------------------------------
-# DATABASE (Render PostgreSQL + Local SQLite fallback)
-# --------------------------------------------------
 # --------------------------------------------------
 # DATABASE
 # --------------------------------------------------
@@ -126,25 +115,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
 # --------------------------------------------------
 # INTERNATIONALIZATION
 # --------------------------------------------------
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "UTC"
+
 USE_I18N = True
 USE_TZ = True
 
 
 # --------------------------------------------------
-# STATIC FILES (IMPORTANT FOR RENDER)
+# STATIC FILES
 # --------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # --------------------------------------------------
