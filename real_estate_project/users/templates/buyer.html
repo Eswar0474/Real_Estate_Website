@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Property - RealEstate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple transition for showing/hiding elements */
+        .filter-section, .listing-section {
+            transition: opacity 0.4s ease-in-out, max-height 0.4s ease-in-out;
+            max-height: 1000px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        .hidden-section {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+            <div class="text-2xl font-bold text-indigo-600">
+                <a href="#">RealEstate</a>
+            </div>
+            <div>
+                <span class="text-gray-700 mr-4">Welcome, {{ user.first_name|default:'Buyer' }}!</span>
+                <a href="{% url 'users:logout' %}" class="px-4 py-2 font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-300">
+                    Log Out
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Initial Choice Section -->
+        <section class="text-center bg-white p-8 rounded-xl shadow-lg mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">What are you looking for?</h1>
+            <div class="flex justify-center space-x-4">
+                <button id="find-home-btn" onclick="setSearchMode('home')" class="px-8 py-4 text-xl font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-lg focus:outline-none">
+                    <i class="fas fa-home mr-2"></i> Find a Home
+                </button>
+                <button id="find-land-btn" onclick="setSearchMode('land')" class="px-8 py-4 text-xl font-bold text-indigo-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-all duration-300 focus:outline-none">
+                    <i class="fas fa-mountain-sun mr-2"></i> Find Land
+                </button>
+            </div>
+        </section>
+
+        <!-- Search & Filter Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-10">
+            <!-- Home Filters -->
+            <div id="home-filters" class="filter-section">
+                <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+                    <div class="col-span-1 md:col-span-4 lg:col-span-2">
+                        <label for="home-location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <input type="text" id="home-location" placeholder="City, Neighborhood, or Zip Code" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="home-property-type" class="block text-sm font-medium text-gray-700">Property Type</label>
+                        <select id="home-property-type" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option>Apartment</option>
+                            <option>Independent House</option>
+                            <option>Villa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="home-beds" class="block text-sm font-medium text-gray-700">Beds & Baths</label>
+                        <select id="home-beds" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option>Any</option>
+                            <option>1 BHK</option>
+                            <option>2 BHK</option>
+                            <option>3 BHK</option>
+                            <option>4+ BHK</option>
+                        </select>
+                    </div>
+                    <button class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </div>
+            </div>
+            <!-- Land Filters -->
+            <div id="land-filters" class="filter-section hidden-section">
+                <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+                    <div class="col-span-1 md:col-span-4 lg:col-span-2">
+                        <label for="land-location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <input type="text" id="land-location" placeholder="City, Mandal, Village, or Survey No." class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="land-type" class="block text-sm font-medium text-gray-700">Land Type</label>
+                        <select id="land-type" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option>Agricultural</option>
+                            <option>Residential</option>
+                            <option>Commercial</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="land-area" class="block text-sm font-medium text-gray-700">Plot Area (Acres)</label>
+                        <input type="text" id="land-area" placeholder="e.g., 1-5" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <button class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Property Listings Section -->
+        <section>
+            <h2 id="listing-title" class="text-3xl font-bold text-gray-800 mb-6">Showing Homes for Sale</h2>
+
+            <!-- Home Listings -->
+            <div id="home-listings" class="listing-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Sample Home Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 property-card">
+                    <a href="property-details-home.html">
+                        <img src="https://placehold.co/600x400/a3bffa/ffffff?text=Modern+Villa" alt="Modern Villa" class="w-full h-56 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">₹ 2.5 Cr</p>
+                                    <p class="text-sm text-gray-600">Jubilee Hills, Hyderabad</p>
+                                </div>
+                                <button class="text-2xl text-gray-400 hover:text-red-500"><i class="far fa-heart"></i></button>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between text-gray-700">
+                                <span><i class="fas fa-bed mr-2 text-indigo-500"></i>4 BHK</span>
+                                <span><i class="fas fa-bath mr-2 text-indigo-500"></i>4 Baths</span>
+                                <span><i class="fas fa-ruler-combined mr-2 text-indigo-500"></i>3200 sq.ft.</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <!-- Sample Home Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 property-card">
+                    <a href="property-details-home.html">
+                        <img src="https://placehold.co/600x400/d8a3ff/ffffff?text=Cozy+Apartment" alt="Cozy Apartment" class="w-full h-56 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">₹ 85 Lakhs</p>
+                                    <p class="text-sm text-gray-600">Gachibowli, Hyderabad</p>
+                                </div>
+                                <button class="text-2xl text-red-500"><i class="fas fa-heart"></i></button>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between text-gray-700">
+                                <span><i class="fas fa-bed mr-2 text-indigo-500"></i>2 BHK</span>
+                                <span><i class="fas fa-bath mr-2 text-indigo-500"></i>2 Baths</span>
+                                <span><i class="fas fa-ruler-combined mr-2 text-indigo-500"></i>1250 sq.ft.</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Land Listings -->
+            <div id="land-listings" class="listing-section hidden-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Sample Land Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 property-card">
+                    <a href="property-details-land.html">
+                        <img src="https://placehold.co/600x400/a3ffa3/ffffff?text=Farm+Land" alt="Farm Land" class="w-full h-56 object-cover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">₹ 40 Lakhs / Acre</p>
+                                    <p class="text-sm text-gray-600">Shankarpally, Ranga Reddy</p>
+                                </div>
+                                <button class="text-2xl text-gray-400 hover:text-red-500"><i class="far fa-heart"></i></button>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between text-gray-700">
+                                <span><i class="fas fa-chart-area mr-2 text-indigo-500"></i>5 Acres</span>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Agricultural</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        function setSearchMode(mode) {
+            const homeFilters = document.getElementById('home-filters');
+            const landFilters = document.getElementById('land-filters');
+            const homeListings = document.getElementById('home-listings');
+            const landListings = document.getElementById('land-listings');
+            const listingTitle = document.getElementById('listing-title');
+            const findHomeBtn = document.getElementById('find-home-btn');
+            const findLandBtn = document.getElementById('find-land-btn');
+
+            if (mode === 'home') {
+                // Show home sections
+                homeFilters.classList.remove('hidden-section');
+                homeListings.classList.remove('hidden-section');
+                // Hide land sections
+                landFilters.classList.add('hidden-section');
+                landListings.classList.add('hidden-section');
+                // Update titles and buttons
+                listingTitle.textContent = 'Showing Homes for Sale';
+                findHomeBtn.classList.replace('bg-gray-200', 'bg-indigo-600');
+                findHomeBtn.classList.replace('text-indigo-600', 'text-white');
+                findLandBtn.classList.replace('bg-indigo-600', 'bg-gray-200');
+                findLandBtn.classList.replace('text-white', 'text-indigo-600');
+
+            } else if (mode === 'land') {
+                // Show land sections
+                landFilters.classList.remove('hidden-section');
+                landListings.classList.remove('hidden-section');
+                // Hide home sections
+                homeFilters.classList.add('hidden-section');
+                homeListings.classList.add('hidden-section');
+                // Update titles and buttons
+                listingTitle.textContent = 'Showing Land for Sale';
+                findLandBtn.classList.replace('bg-gray-200', 'bg-indigo-600');
+                findLandBtn.classList.replace('text-indigo-600', 'text-white');
+                findHomeBtn.classList.replace('bg-indigo-600', 'bg-gray-200');
+                findHomeBtn.classList.replace('text-white', 'text-indigo-600');
+            }
+        }
+    </script>
+
+</body>
+</html>

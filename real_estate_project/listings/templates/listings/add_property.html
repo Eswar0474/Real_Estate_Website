@@ -1,0 +1,60 @@
+{% extends 'base_seller.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Sell Your Property</h1>
+        
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Loop through form fields -->
+                {% for field in form %}
+                <div id="div_{{ field.id_for_label }}" class="form-field-wrapper">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" class="w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition duration-300">
+                    List My Property
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const propertyTypeSelect = document.getElementById('id_property_type');
+        const bedroomsDiv = document.getElementById('div_id_bedrooms');
+        const bathroomsDiv = document.getElementById('div_id_bathrooms');
+
+        function toggleHouseFields() {
+            if (propertyTypeSelect.value === 'House') {
+                bedroomsDiv.style.display = 'block';
+                bathroomsDiv.style.display = 'block';
+            } else {
+                bedroomsDiv.style.display = 'none';
+                bathroomsDiv.style.display = 'none';
+            }
+        }
+
+        // Initial check on page load
+        toggleHouseFields();
+
+        // Add event listener for changes
+        propertyTypeSelect.addEventListener('change', toggleHouseFields);
+    });
+</script>
+{% endblock %}

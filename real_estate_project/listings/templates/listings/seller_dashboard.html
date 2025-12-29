@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head_styles %}
+<style>
+    .dashboard-header {
+        padding: 2.5rem 0;
+        background-color: var(--bs-light);
+        border-bottom: 1px solid #dee2e6;
+    }
+    .property-card-seller {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .property-card-seller:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.4em 0.8em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %} alert-danger {% else %} alert-success {% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold text-dark">My Properties</h1>
+                <p class="text-muted">Manage your listings and view their status.</p>
+            </div>
+            <a href="{%url 'listings:add-property'%}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Sell Your Property
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if listed_properties %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for property in listed_properties %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm property-card-seller">
+                    <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">{{ property.title }}</h5>
+                        <p class="card-text text-muted small"><i class="fas fa-map-marker-alt fa-xs me-1"></i>{{ property.location }}</p>
+                        <p class="card-text fs-4 fw-bold text-primary">₹{{ property.price|floatformat:0|intcomma }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if property.is_published %}
+                                <span class="badge rounded-pill bg-success-subtle text-success-emphasis status-badge">Published</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis status-badge">Draft</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'listings:edit-property' property.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'listings:delete-property' property.pk %}" class="btn btn-sm btn-outline-danger ms-1">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Message for when no properties are listed -->
+        <div class="text-center py-5">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-5">
+                    <i class="fas fa-house-chimney-crack fa-4x text-muted mb-4"></i>
+                    <h2 class="fw-bold text-dark">You haven't listed any properties yet.</h2>
+                    <p class="text-muted mt-2 mb-4">Get started today and find the perfect buyer for your property.</p>
+                    <a href="#" class="btn btn-primary btn-lg">List Your First Property</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

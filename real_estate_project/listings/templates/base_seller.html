@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot Point</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Alpine.js for dropdown interactivity -->
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="{% url 'listings:home' %}" class="flex items-center">
+                <span class="font-bold text-xl text-blue-600">Plot Point</span>
+            </a>
+            <div class="flex items-center space-x-6">
+                <!-- In templates/base_seller.html -->
+<a href="{% url 'listings:inbox' %}" class="text-gray-600 hover:text-blue-600 font-semibold">
+    <i class="fas fa-envelope mr-1"></i> Messages
+</a>
+                <!-- Profile Dropdown -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center focus:outline-none">
+                        <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.jp/d3cfcf/000000/150x150.png?text={{request.user.first_name|first}}&css=%7B%22font-size%22%3A%2260px%22%7D" alt="Profile">
+                    </button>
+
+                    <div x-cloak x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl z-20">
+                        <a href="{% url 'users:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Settings</a>
+                        <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

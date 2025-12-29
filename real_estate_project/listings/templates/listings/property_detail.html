@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head_styles %}
+<style>
+    /* Custom styles for the property detail page */
+    .gallery-thumbnail {
+        cursor: pointer;
+        transition: border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+        border: 2px solid transparent;
+        opacity: 0.7;
+    }
+    .gallery-thumbnail:hover,
+    .gallery-thumbnail.active {
+        border-color: var(--bs-primary);
+        opacity: 1;
+    }
+    .main-image {
+        height: 500px;
+        width: 100%;
+        object-fit: cover;
+    }
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+        <div class="row g-0">
+            <!-- Left Side: Image Gallery -->
+            <div class="col-lg-7 p-4">
+                <!-- Main Image Display -->
+                <div class="mb-3">
+                    <img id="mainImage" src="{{ property.main_image.url }}" alt="{{ property.title }}" class="main-image rounded-2">
+                </div>
+                <!-- Thumbnail Gallery -->
+                <div class="row g-2">
+                    <!-- Main Image Thumbnail -->
+                    <div class="col">
+                        <img src="{{ property.main_image.url }}" onclick="changeImage(this)" class="gallery-thumbnail rounded-2 active">
+                    </div>
+                    <!-- Additional Images Thumbnails-->
+                    {% for image in additional_images %}
+                    <div class="col">
+                        <img src="{{ image.image.url }}" onclick="changeImage(this)" class="gallery-thumbnail rounded-2">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Side: Property Details -->
+            <div class="col-lg-5 bg-light p-4 p-lg-5 d-flex flex-column">
+                <div class="flex-grow-1">
+                    <h1 class="display-5 fw-bold text-dark mb-2">{{ property.title }}</h1>
+                    <p class="fs-5 text-muted mb-4 d-flex align-items-center">
+                        <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+                        {{ property.location }}
+                    </p>
+
+                    <div class="mb-4 p-3 bg-success-subtle border-start border-success border-4 rounded-end">
+                        <span class="display-4 fw-light text-success-emphasis">{{ property.price|floatformat:0|intcomma }}</span>
+                        <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fs-6 align-self-center ms-2">{{ property.get_status_display }}</span>
+                    </div>
+
+                    <!-- Key Features -->
+                    <div class="row row-cols-2 g-4 mb-4">
+                        <div class="col d-flex align-items-center">
+                            <i class="fas fa-home fa-2x text-primary feature-icon"></i>
+                            <div class="ms-3">
+                                <p class="text-muted mb-0 small">Type</p>
+                                <p class="fw-semibold mb-0 fs-5">{{ property.get_property_type_display }}</p>
+                            </div>
+                        </div>
+                        <div class="col d-flex align-items-center">
+                            <i class="fas fa-ruler-combined fa-2x text-primary feature-icon"></i>
+                            <div class="ms-3">
+                                <p class="text-muted mb-0 small">Area</p>
+                                <p class="fw-semibold mb-0 fs-5">{{ property.area_sqft|intcomma }} sqft</p>
+                            </div>
+                        </div>
+                        {% if property.property_type == 'House' %}
+                        <div class="col d-flex align-items-center">
+                            <i class="fas fa-bed fa-2x text-primary feature-icon"></i>
+                            <div class="ms-3">
+                                <p class="text-muted mb-0 small">Bedrooms</p>
+                                <p class="fw-semibold mb-0 fs-5">{{ property.bedrooms }}</p>
+                            </div>
+                        </div>
+                        <div class="col d-flex align-items-center">
+                            <i class="fas fa-bath fa-2x text-primary feature-icon"></i>
+                            <div class="ms-3">
+                                <p class="text-muted mb-0 small">Bathrooms</p>
+                                <p class="fw-semibold mb-0 fs-5">{{ property.bathrooms }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h2 class="h4 fw-semibold text-dark mb-3 border-bottom pb-2">About this property</h2>
+                        <div class="text-secondary" style="line-height: 1.7;">
+                            {{ property.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seller Info & Contact -->
+                <div class="border-top pt-4 mt-auto">
+                    <p class="text-muted mb-3">Listed by: <span class="fw-medium text-dark">{{ property.seller.username }}</span></p>
+
+                    <form method="POST" action="{% url 'listings:property-detail' property.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="message_body" class="form-control" rows="4" placeholder="Hi {{ property.seller.username }}, I'm interested in this property..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-paper-plane me-2"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+    function changeImage(thumbnailElement) {
+        // Set the main image source to the clicked thumbnail's source
+        const newSrc = thumbnailElement.src;
+        document.getElementById('mainImage').src = newSrc;
+
+        // Remove 'active' class from all thumbnails
+        const thumbnails = document.querySelectorAll('.gallery-thumbnail');
+        thumbnails.forEach(img => {
+            img.classList.remove('active');
+        });
+
+        // Add 'active' class to the clicked thumbnail
+        thumbnailElement.classList.add('active');
+    }
+</script>
+{% endblock %}

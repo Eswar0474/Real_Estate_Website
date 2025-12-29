@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head_styles %}
+<style>
+    /* --- Custom Variables --- */
+    :root {
+        --primary-color: #0d263b;
+        --secondary-color: #4a90e2;
+        --text-color: #333;
+        --text-muted-color: #6c757d;
+        --bg-light: #f8f9fa;
+        --border-color: #dee2e6;
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* --- Video Hero Section --- */
+    .hero-section {
+        position: relative;
+        height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        overflow: hidden;
+    }
+
+    #heroVideo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -100;
+        transform: translateX(-50%) translateY(-50%);
+        background-size: cover;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(13, 38, 59, 0.6); /* Dark blue overlay */
+        z-index: -1;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .hero-content p {
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 1rem auto 2rem;
+    }
+
+    /* --- Search Form on Hero --- */
+    .hero-search-form {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero-search-form .form-control, .hero-search-form .form-select {
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        padding: 0.8rem 1rem;
+        color: #333;
+    }
+    .hero-search-form .form-control::placeholder {
+        color: #888;
+    }
+
+    .hero-search-form .btn-primary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+    }
+
+    /* --- Featured Properties Section --- */
+    .featured-section {
+        background-color: #fff;
+    }
+
+    /* Using the same excellent card styles from before */
+    .property-card {
+        background-color: #fff;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .property-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-shadow-hover);
+    }
+    .property-card .img-container {
+        position: relative;
+        height: 240px;
+    }
+    .property-card .img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .property-card .favorite-btn {
+        position: absolute; top: 1rem; right: 1rem; background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px); border-radius: 50%; width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center; text-decoration: none;
+        color: var(--primary-color); font-size: 1.2rem; transition: all 0.2s ease;
+    }
+    .property-card .favorite-btn:hover { background-color: white; transform: scale(1.1); }
+    .property-card .favorite-btn .fa-heart.text-danger { color: #e74c3c !important; }
+    .property-card .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .property-card .card-title { font-weight: 600; color: var(--primary-color); font-size: 1.2rem; }
+    .property-card .card-location { color: var(--text-muted-color); font-size: 0.9rem; margin-bottom: 1rem; }
+    .property-card .card-price { font-size: 1.75rem; font-weight: 700; color: var(--secondary-color); margin-top: auto; margin-bottom: 1rem; }
+    .property-card .card-footer { background-color: transparent; border-top: 1px solid #f0f0f0; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-muted-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section 1: Video Hero -->
+<section class="hero-section">
+    <video playsinline autoplay muted loop id="heroVideo">
+        <!-- NOTE: Replace this with a high-quality video of your own -->
+        <source src="https://videos.pexels.com/video-files/8577635/8577635-hd_1920_1080_25fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="hero-content container">
+        <h1 class="display-4 fw-bold">Find Your Dream Home</h1>
+        <p class="lead">With our expertise and your dreams, we can find the perfect place for you to call home.</p>
+
+        <form class="hero-search-form" action="{% url 'listings:property-list' %}" method="get">
+            <div class="row g-2 align-items-center">
+                <div class="col-lg-5">
+                    <input type="text" name="q" class="form-control" placeholder="Enter a location, city, or address...">
+                </div>
+                <div class="col-lg-4">
+                    <select name="type" class="form-select">
+                        <option value="" selected>All Property Types</option>
+                        <option value="House">House</option>
+                        <option value="Land">Land</option>
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Section 2: Featured Listings -->
+<section class="featured-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Featured Properties</h2>
+            <p class="text-muted">Handpicked properties from our exclusive listings.</p>
+        </div>
+        <div class="row g-4">
+            {% for property in properties|slice:":3" %}
+            <div class="col-lg-4 col-md-6">
+                <div class="property-card">
+                    <div class="img-container">
+                        <a href="{% url 'listings:property-detail' property.pk %}">
+                            <img src="{{ property.main_image.url }}" alt="{{ property.title }}">
+                        </a>
+                        <a href="{% url 'listings:toggle-favorite' property.pk %}" class="favorite-btn">
+                            {% if user.is_authenticated and property in user.profile.favorites.all %}
+                                <i class="fas fa-heart text-danger"></i>
+                            {% else %}
+                                <i class="far fa-heart"></i>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">{{ property.title }}</h5>
+                        <p class="card-location text-truncate"><i class="fas fa-map-marker-alt me-1"></i>{{ property.location }}</p>
+                        <p class="card-price">₹{{ property.price|intcomma }}</p>
+                    </div>
+                    <div class="card-footer">
+                        {% if property.property_type == 'House' %}
+                            <span><i class="fas fa-bed me-1"></i> {{ property.bedrooms }} Beds</span>
+                            <span><i class="fas fa-bath me-1"></i> {{ property.bathrooms }} Baths</span>
+                        {% else %}
+                            <span>&nbsp;</span>
+                        {% endif %}
+                        <span><i class="fas fa-ruler-combined me-1"></i> {{ property.area_sqft|intcomma }} sqft</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <p class="text-muted">No featured properties at the moment. Please check back later.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'listings:property-list' %}" class="btn btn-outline-primary btn-lg">View All Properties</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

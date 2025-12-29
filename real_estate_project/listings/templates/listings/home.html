@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head_styles %}
+<style>
+    .showcase-section .display-4 {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    .property-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+    .recommendation-section {
+        background-color: #eef2ff; /* A light indigo background */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    {% if messages %}
+    <div class="container py-3">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %} alert-danger {% else %} alert-info {% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Hero Section -->
+    <div class="text-center py-5 bg-white shadow-sm">
+        <div class="container">
+            <h1 class="display-5 fw-bold text-dark mb-3">From Plot to Paradise: Find Your Future Here</h1>
+            <p class="fs-5 text-muted">The best place to find your dream home or land.</p>
+        </div>
+    </div>
+
+    <!-- Recommended For You Section (Logged-in users only) -->
+    {% if user.is_authenticated %}
+    <div class="py-5 recommendation-section">
+        <div class="container">
+            <h2 class="fw-bold text-dark mb-4">Recommended For You:</h2>
+            {% if recommended_properties %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                    {% for property in recommended_properties %}
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm property-card">
+                            <a href="{% url 'listings:property-detail' property.pk %}">
+                                <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-truncate fw-semibold">{{ property.title }}</h5>
+                                <p class="card-text text-muted small mb-2"><i class="fas fa-map-marker-alt fa-xs me-1"></i>{{ property.location }}</p>
+                                <h4 class="card-text fw-bold text-primary mt-auto">₹{{ property.price|floatformat:0|intcomma }}</h4>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {% if property.bedrooms %}{{ property.bedrooms }} bd | {{ property.bathrooms }} ba | {% endif %}{{ property.area_sqft|intcomma }} sqft
+                                </small>
+                                <a href="{% url 'listings:property-detail' property.pk %}" class="fw-semibold text-decoration-none">View</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Prompt to set preferences if no recommendations are found -->
+                <div class="text-center py-4">
+                    <div class="card border-0 bg-white">
+                        <div class="card-body p-5">
+                            <i class="fas fa-user-cog fa-4x text-muted mb-4"></i>
+                            <h4 class="fw-bold text-dark">Get Personalized Recommendations</h4>
+                            <p class="text-muted mt-2 mb-4">Update your profile with a budget and preferred location to see properties tailored just for you.</p>
+                            <a href="{% url 'users:settings'%}" class="btn btn-primary">Update My Preferences</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Showcase Property Section -->
+    {% if showcase_property %}
+    <div class="container my-5">
+        <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    <img src="{{ showcase_property.main_image.url }}" alt="{{ showcase_property.title }}" class="img-fluid h-100" style="object-fit: cover; min-height: 350px;">
+                </div>
+                <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center showcase-section">
+                    <h3 class="text-muted text-uppercase small fw-bold">Featured Property</h3>
+                    <p class="display-4 my-2">₹{{ showcase_property.price|floatformat:0|intcomma }}/-</p>
+                    <p class="fs-4 text-dark mb-3">{{ showcase_property.title }}</p>
+                    <div class="d-flex text-muted mb-4">
+                        {% if showcase_property.bedrooms %}<span class="me-4"><i class="fas fa-bed me-1"></i> {{ showcase_property.bedrooms }} bd</span>{% endif %}
+                        {% if showcase_property.bathrooms %}<span class="me-4"><i class="fas fa-bath me-1"></i> {{ showcase_property.bathrooms }} ba</span>{% endif %}
+                        <span><i class="fas fa-ruler-combined me-1"></i> {{ showcase_property.area_sqft|intcomma }} sqft</span>
+                    </div>
+                    <div class="mt-auto">
+                        <a href="{% url 'listings:property-detail' showcase_property.pk %}" class="btn btn-primary btn-lg">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Premier House Properties Section -->
+    {% if featured_houses %}
+    <div class="container py-4">
+        <h2 class="fw-bold text-dark mb-4">Explore Our Premier House Properties:</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for house in featured_houses %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm property-card">
+                    <a href="{% url 'listings:property-detail' house.pk %}">
+                        <img src="{{ house.main_image.url }}" alt="{{ house.title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate fw-semibold">{{ house.title }}</h5>
+                        <p class="card-text text-muted small mb-2"><i class="fas fa-map-marker-alt fa-xs me-1"></i>{{ house.location }}</p>
+                        <h4 class="card-text fw-bold text-primary mt-auto">₹{{ house.price|floatformat:0|intcomma }}</h4>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ house.bedrooms }} bd | {{ house.bathrooms }} ba | {{ house.area_sqft|intcomma }} sqft</small>
+                        <a href="{% url 'listings:property-detail' house.pk %}" class="fw-semibold text-decoration-none">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Premier Land Properties Section -->
+    {% if featured_land %}
+    <div class="container py-4">
+        <h2 class="fw-bold text-dark mb-4">Explore Our Premier Land Properties:</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for land in featured_land %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm property-card">
+                    <a href="{% url 'listings:property-detail' land.pk %}">
+                        <img src="{{ land.main_image.url }}" alt="{{ land.title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate fw-semibold">{{ land.title }}</h5>
+                        <p class="card-text text-muted small mb-2"><i class="fas fa-map-marker-alt fa-xs me-1"></i>{{ land.location }}</p>
+                        <h4 class="card-text fw-bold text-primary mt-auto">₹{{ land.price|floatformat:0|intcomma }}</h4>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ land.area_sqft|intcomma }} sqft {% if land.facing %}| Facing {{ land.facing }}{% endif %}</small>
+                        <a href="{% url 'listings:property-detail' land.pk %}" class="fw-semibold text-decoration-none">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+    <div class="container my-4">
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Want Personalized Recommendations?</h4>
+            <p>To get properties recommended based on your budget and preferred location, please <a href="{% url 'users:login'%}" class="alert-link">Login</a> or <a href="{% url 'users:register'%}" class="alert-link">Sign Up</a>.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA Section -->
+    <div class="bg-white py-5">
+        <div class="container">
+            <div class="row justify-content-center g-4">
+                <div class="col-md-5">
+                    <div class="p-4 border rounded-3 text-center h-100">
+                        <h3 class="fw-bold mb-2">Buy a Property</h3>
+                        <p class="text-muted mb-3">Buy your dream Property with the best experience.</p>
+                        <a href="{% url 'listings:property-list'%}" class="fw-semibold text-decoration-none">Browse Properties &rarr;</a>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="p-4 border rounded-3 text-center h-100">
+                        <h3 class="fw-bold mb-2">Sell a Property</h3>
+                        <p class="text-muted mb-3">Sell your Property with the best experience.</p>
+                        <a href="{% url 'listings:seller-dashboard'%}" class="fw-semibold text-decoration-none">Sell Property &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

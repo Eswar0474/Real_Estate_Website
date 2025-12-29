@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head_styles %}
+<style>
+    :root {
+        --primary-color: #0d263b;
+        --secondary-color: #4a90e2;
+        --text-color: #333;
+        --text-muted-color: #6c757d;
+        --bg-light: #f8f9fa;
+        --border-color: #dee2e6;
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        --card-shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+    }
+    body {
+        background-color: #fff;
+    }
+
+    /* --- Featured Slideshow --- */
+    .featured-slideshow {
+        background-color: var(--primary-color);
+        padding: 4rem 0;
+    }
+    .featured-slideshow .carousel-item {
+        height: 60vh;
+        min-height: 500px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+    }
+    .featured-slideshow .carousel-item::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%);
+    }
+    .featured-slideshow .carousel-caption {
+        bottom: 10%;
+        left: 5%;
+        text-align: left;
+        background: none;
+    }
+    .featured-slideshow .carousel-caption h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    }
+    .featured-slideshow .carousel-caption .price {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* --- Filter Buttons Section --- */
+    .filter-section {
+        padding: 2.5rem 0;
+        background-color: var(--bg-light);
+        border-bottom: 1px solid var(--border-color);
+    }
+    .filter-buttons .btn {
+        font-size: 1.2rem;
+        font-weight: 600;
+        padding: 0.8rem 2.5rem;
+        transition: all 0.3s ease;
+    }
+    .filter-buttons .btn-home {
+        background-color: #fff;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+    }
+    .filter-buttons .btn-home.active, .filter-buttons .btn-home:hover {
+        background-color: var(--primary-color);
+        color: #fff;
+    }
+    .filter-buttons .btn-land {
+        background-color: #fff;
+        color: #28a745;
+        border: 2px solid #28a745;
+    }
+    .filter-buttons .btn-land.active, .filter-buttons .btn-land:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    /* --- Property Card Styles --- */
+    .property-card {
+        background-color: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .property-card:hover { transform: translateY(-8px); box-shadow: var(--card-shadow-hover); border-color: var(--secondary-color); }
+    .property-card .img-container { position: relative; height: 240px; }
+    .property-card .img-container img { width: 100%; height: 100%; object-fit: cover; }
+    .property-card .favorite-btn { position: absolute; top: 1rem; right: 1rem; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--primary-color); font-size: 1.2rem; transition: all 0.2s ease; }
+    .property-card .favorite-btn:hover { background-color: white; transform: scale(1.1); }
+    .property-card .favorite-btn .fa-heart.text-danger { color: #e74c3c !important; }
+    .property-card .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .property-card .card-title { font-weight: 600; color: var(--primary-color); font-size: 1.2rem; }
+    .property-card .card-location { color: var(--text-muted-color); font-size: 0.9rem; margin-bottom: 1rem; }
+    .property-card .card-price { font-size: 1.75rem; font-weight: 700; color: var(--secondary-color); margin-top: auto; margin-bottom: 1rem; }
+    .property-card .card-footer { background-color: transparent; border-top: 1px solid #f0f0f0; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-muted-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section 1: Best Properties Slideshow -->
+<section class="featured-slideshow">
+    <div class="container">
+        <div class="text-center text-white mb-4">
+            <h2 class="fw-bold">Our Finest Properties</h2>
+            <p class="lead">A curated selection of our premium homes and lands.</p>
+        </div>
+
+        <!-- FIXED CAROUSEL STRUCTURE -->
+        <div id="featuredPropertiesCarousel" class="carousel slide" data-bs-ride="carousel">
+
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                {% for property in featured_properties %}
+                <button type="button" data-bs-target="#featuredPropertiesCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="true" aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+
+            <!-- Slides -->
+            <div class="carousel-inner">
+                {% for property in featured_properties %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}" style="background-image: url('{{ property.main_image.url }}')">
+                    <div class="carousel-caption d-none d-md-block">
+                        <span class="badge bg-light text-dark fs-6 mb-2">{{ property.property_type }}</span>
+                        <h3>{{ property.title }}</h3>
+                        <p class="price">₹{{ property.price|intcomma }}</p>
+                        <a href="{% url 'listings:property-detail' property.pk %}" class="btn btn-light btn-lg mt-2" style="position: relative; z-index: 10;">View Details</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="carousel-item active" style="background-image: url('https://placehold.co/1920x1080/0d263b/ffffff?text=No+Featured+Properties')"></div>
+                {% endfor %}
+            </div>
+
+            <!-- Controls -->
+            {% if featured_properties|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredPropertiesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredPropertiesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            {% endif %}
+        </div>
+        <!-- END OF FIXED CAROUSEL STRUCTURE -->
+
+    </div>
+</section>
+
+<!-- Section 2: Filter Buttons -->
+<section class="filter-section">
+    <div class="container text-center">
+        <div class="filter-buttons d-flex justify-content-center gap-3">
+            <a href="{% url 'listings:property-list' %}?type=House" class="btn btn-home rounded-pill {% if active_filter == 'House' %}active{% endif %}">
+                <i class="fas fa-home me-2"></i>Homes
+            </a>
+            <a href="{% url 'listings:property-list' %}?type=Land" class="btn btn-land rounded-pill {% if active_filter == 'Land' %}active{% endif %}">
+                <i class="fas fa-mountain me-2"></i>Lands
+            </a>
+        </div>
+        {% if active_filter %}
+        <div class="mt-3">
+            <a href="{% url 'listings:property-list' %}" class="btn btn-link text-muted btn-sm">Clear Filter & View All</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Section 3: Property Grid -->
+<div class="container py-5">
+    <div class="row g-4">
+        {% for property in properties %}
+        <div class="col-lg-4 col-md-6">
+            <div class="property-card">
+                <div class="img-container">
+                    <a href="{% url 'listings:property-detail' property.pk %}">
+                        <img src="{{ property.main_image.url }}" alt="{{ property.title }}">
+                    </a>
+
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ property.title }}</h5>
+                    <p class="card-location text-truncate"><i class="fas fa-map-marker-alt me-1"></i>{{ property.location }}</p>
+                    <p class="card-price">₹{{ property.price|intcomma }}</p>
+                </div>
+                <div class="card-footer">
+                    {% if property.property_type == 'House' %}
+                        <span><i class="fas fa-bed me-1"></i> {{ property.bedrooms }} Beds</span>
+                        <span><i class="fas fa-bath me-1"></i> {{ property.bathrooms }} Baths</span>
+                    {% else %}
+                        <span>&nbsp;</span>
+                    {% endif %}
+                    <span><i class="fas fa-ruler-combined me-1"></i> {{ property.area_sqft|intcomma }} sqft</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5 my-5">
+                <i class="fas fa-search-dollar fa-5x text-light mb-4"></i>
+                <h3 class="fw-bold">No Properties Found</h3>
+                <p class="text-muted fs-5">There are no properties matching your selected filter.</p>
+                <a href="{% url 'listings:property-list' %}" class="btn btn-primary mt-3">View All Properties</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
